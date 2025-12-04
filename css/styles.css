@@ -1,0 +1,40 @@
+:root{
+  --bg:#f4f7f9;
+  --panel:#ffffff;
+  --accent:#0b5cff;
+  --muted:#666;
+  --error:#ffdddd;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:Segoe UI, Roboto, Arial, sans-serif;background:var(--bg);color:#111}
+header{padding:16px 20px}
+header h1{margin:0;font-weight:600}
+.subtitle{margin:6px 0 0;color:var(--muted)}
+
+.game{display:flex;gap:20px;padding:20px;align-items:flex-start;max-width:980px;margin:0 auto}
+.sudoku-grid{display:grid;grid-template-columns:repeat(9,44px);grid-template-rows:repeat(9,44px);gap:0;background:transparent}
+.cell{position:relative;border:1px solid #bbb;display:flex;align-items:center;justify-content:center}
+.cell:nth-child(3n){border-right:2px solid #888}
+.cell:nth-child(n+19):nth-child(-n+27),
+.cell:nth-child(n+46):nth-child(-n+54),
+.cell:nth-child(n+73):nth-child(-n+81){border-bottom:2px solid #888}
+.cell.given{background:linear-gradient(180deg,#fff, #f3f6ff);font-weight:700;color:#000}
+.cell input{width:100%;height:100%;border:0;background:transparent;font-size:18px;text-align:center}
+.cell input:focus{outline:3px solid rgba(11,92,255,0.12)}
+.cell.selected{background:rgba(11,92,255,0.06)}
+.cell.error{background:var(--error)}
+
+.controls{min-width:220px;background:var(--panel);padding:12px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+.note{margin:6px 0 12px;color:var(--muted);font-size:14px}
+.actions{display:flex;gap:8px;margin-bottom:8px}
+.actions button{flex:1;padding:8px;border-radius:6px;border:0;background:var(--accent);color:#fff;cursor:pointer}
+.actions button#reset{background:#777}
+.status{min-height:36px;color:var(--muted);font-size:14px}
+
+footer{padding:14px 20px;color:var(--muted);text-align:center}
+
+@media (max-width:760px){
+  .game{flex-direction:column;align-items:center}
+  .sudoku-grid{grid-template-columns:repeat(9,36px);grid-template-rows:repeat(9,36px)}
+  .controls{width:100%;max-width:520px}
+}

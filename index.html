@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>One-screen Sudoku</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header>
+    <h1>One-screen Sudoku</h1>
+    <p class="subtitle">Click a cell or use the number buttons / keyboard. Try the hint or check your solution.</p>
+  </header>
+
+  <main>
+    <section class="game">
+      <div id="sudoku" class="sudoku-grid" aria-label="Sudoku grid"></div>
+
+      <aside class="controls">
+        <p class="note">Use your keyboard to enter numbers; Backspace/Delete to erase.</p>
+
+        <div class="actions">
+          <button id="hint">Hint</button>
+          <button id="check">Check</button>
+          <button id="reset">Reset</button>
+        </div>
+
+        <div id="status" class="status" role="status" aria-live="polite"></div>
+      </aside>
+    </section>
+  </main>
+
+  <footer>
+    <small>Initial version</small>
+  </footer>
+
+  <script src="js/app.js" defer></script>
+</body>
+</html>
