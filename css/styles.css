@@ -26,7 +26,9 @@ header h1{margin:0;font-weight:600}
 
 .controls{min-width:220px;background:var(--panel);padding:12px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
 .note{margin:6px 0 12px;color:var(--muted);font-size:14px}
-.actions{display:flex;gap:8px;margin-bottom:8px}
+.difficulty-label{display:inline-block;margin-right:6px;font-size:14px;color:var(--muted);align-self:center}
+.actions{display:flex;gap:8px;margin-bottom:8px;align-items:center}
+.actions select{padding:6px;border-radius:6px;border:1px solid #cbd5e1;background:#fff}
 .actions button{flex:1;padding:8px;border-radius:6px;border:0;background:var(--accent);color:#fff;cursor:pointer}
 .actions button#reset{background:#777}
 .status{min-height:36px;color:var(--muted);font-size:14px}

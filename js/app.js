@@ -1,30 +1,13 @@
-const puzzle = [
-  // 0 means empty
-  [5,3,0, 0,7,0, 0,0,0],
-  [6,0,0, 1,9,5, 0,0,0],
-  [0,9,8, 0,0,0, 0,6,0],
+let puzzle = null;
+let solution = null; 
 
-  [8,0,0, 0,6,0, 0,0,3],
-  [4,0,0, 8,0,3, 0,0,1],
-  [7,0,0, 0,2,0, 0,0,6],
-
-  [0,6,0, 0,0,0, 2,8,0],
-  [0,0,0, 4,1,9, 0,0,5],
-  [0,0,0, 0,8,0, 0,7,9]
-];
-
-// Solution for puzzle
-const solution = [
-  [5,3,4,6,7,8,9,1,2],
-  [6,7,2,1,9,5,3,4,8],
-  [1,9,8,3,4,2,5,6,7],
-  [8,5,9,7,6,1,4,2,3],
-  [4,2,6,8,5,3,7,9,1],
-  [7,1,3,9,2,4,8,5,6],
-  [9,6,1,5,3,7,2,8,4],
-  [2,8,7,4,1,9,6,3,5],
-  [3,4,5,2,8,6,1,7,9]
-];
+function createEmptyGrid(){
+  const g = [];
+  for(let r=0;r<9;r++){
+    g.push(new Array(9).fill(0));
+  }
+  return g;
+}
 
 const sudokuEl = document.getElementById('sudoku');
 const statusEl = document.getElementById('status');
@@ -127,10 +110,10 @@ function getInputValue(r,c){
 }
 
 function validateAll(){
-  // removes all error classes
+
   sudokuEl.querySelectorAll('.cell').forEach(el=>el.classList.remove('error'));
 
-  // row, col, box checks
+
   function markDuplicates(positions){
     const map = {};
     positions.forEach(([r,c])=>{
@@ -174,9 +157,124 @@ function validateAll(){
   }
 }
 
+// --------------------
+// Solver & Generator
+// --------------------
+
+function shuffleArray(arr){
+  for(let i = arr.length - 1; i>0; i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+function isSafe(grid, r, c, n){
+  for(let i=0;i<9;i++){
+    if(grid[r][i] === n) return false;
+    if(grid[i][c] === n) return false;
+  }
+  const br = Math.floor(r/3)*3;
+  const bc = Math.floor(c/3)*3;
+  for(let i=br;i<br+3;i++) for(let j=bc;j<bc+3;j++) if(grid[i][j]===n) return false;
+  return true;
+}
+
+
+function countSolutions(grid, limit=2){
+  for(let r=0;r<9;r++){
+    for(let c=0;c<9;c++){
+      if(grid[r][c] === 0){
+        let count = 0;
+        for(let n=1;n<=9;n++){
+          if(isSafe(grid,r,c,n)){
+            grid[r][c] = n;
+            const res = countSolutions(grid, limit);
+            if(res>0) count += res;
+            grid[r][c] = 0;
+            if(count >= limit) return count;
+          }
+        }
+        return count;
+      }
+    }
+  }
+  return 1;
+}
+
+
+function generateFullSolution(){
+  const grid = createEmptyGrid();
+  const cells = [];
+  for(let r=0;r<9;r++) for(let c=0;c<9;c++) cells.push([r,c]);
+  function backtrack(idx){
+    if(idx >= cells.length) return true;
+    const [r,c] = cells[idx];
+    const nums = [1,2,3,4,5,6,7,8,9];
+    shuffleArray(nums);
+    for(const n of nums){
+      if(isSafe(grid,r,c,n)){
+        grid[r][c] = n;
+        if(backtrack(idx+1)) return true;
+        grid[r][c] = 0;
+      }
+    }
+    return false;
+  }
+  backtrack(0);
+  return grid;
+}
+
+
+function generatePuzzleFromSolution(fullSol, options={clues:30, minPerBlock:3}){
+  const g = fullSol.map(r=>r.slice());
+  const cells = [];
+  for(let r=0;r<9;r++) for(let c=0;c<9;c++) cells.push([r,c]);
+  shuffleArray(cells);
+
+
+  const targetFilled = Math.max(17, Math.min(81, options.clues || 30));
+  const minPerBlock = (typeof options.minPerBlock === 'number') ? options.minPerBlock : 3;
+
+
+  const blockCounts = new Array(9).fill(0);
+  for(let r=0;r<9;r++) for(let c=0;c<9;c++){
+    const b = Math.floor(r/3)*3 + Math.floor(c/3);
+    if(g[r][c] !== 0) blockCounts[b]++;
+  }
+
+  for(const [r,c] of cells){
+    const b = Math.floor(r/3)*3 + Math.floor(c/3);
+    if(blockCounts[b] <= minPerBlock) continue;
+
+    const backup = g[r][c];
+    g[r][c] = 0;
+    const copy = g.map(row=>row.slice());
+    const sols = countSolutions(copy, 2);
+    if(sols !== 1){
+      g[r][c] = backup;
+    } else {
+      blockCounts[b]--;
+      const filled = g.flat().filter(x=>x!==0).length;
+      if(filled <= targetFilled) break;
+    }
+  }
+  return g;
+}
+
+function generateNewPuzzle(options={clues:30, minPerBlock:3}){
+  statusEl.textContent = 'Generating puzzle...';
+  const full = generateFullSolution();
+  const puzzleGrid = generatePuzzleFromSolution(full, options);
+  puzzle = puzzleGrid;
+  solution = full;
+  renderGrid();
+  validateAll();
+  statusEl.textContent = '';
+}
+
 
 document.getElementById('hint').addEventListener('click', ()=>{
-  // finds empty inputs
+
   const empties = [];
   for(let r=0;r<9;r++) for(let c=0;c<9;c++){
     if(puzzle[r][c]===0){
@@ -191,7 +289,7 @@ document.getElementById('hint').addEventListener('click', ()=>{
 });
 
 document.getElementById('reset').addEventListener('click', ()=>{
-  // clear all non-given inputs
+
   for(let r=0;r<9;r++) for(let c=0;c<9;c++){
     const cell = getCellEl(r,c);
     if(!cell) continue;
@@ -214,7 +312,7 @@ document.getElementById('check').addEventListener('click', ()=>{
   else statusEl.textContent = 'Congratulations — puzzle solved correctly!';
 });
 
-// Global keyboard shortcuts: if no input is focused, use selected cell
+
 document.addEventListener('keydown', (e)=>{
   const active = document.activeElement;
   const focusIsInput = active && active.tagName === 'INPUT';
@@ -230,6 +328,24 @@ document.addEventListener('keydown', (e)=>{
   }
 });
 
-// Initialization
-renderGrid();
-validateAll();
+// New puzzle button
+const newBtn = document.getElementById('new');
+if(newBtn) newBtn.addEventListener('click', ()=>{
+  const diffEl = document.getElementById('difficulty');
+  const diff = diffEl ? diffEl.value : 'medium';
+  const map = {
+    easy: {clues:36, minPerBlock:4},
+    medium: {clues:30, minPerBlock:3},
+    hard: {clues:24, minPerBlock:2}
+  };
+  const opts = map[diff] || map.medium;
+  generateNewPuzzle({clues:opts.clues, minPerBlock:opts.minPerBlock});
+}
+);
+
+// Initialization: generate a puzzle on load using the default difficulty selector
+const initialDiffEl = document.getElementById('difficulty');
+const initialDiff = initialDiffEl ? initialDiffEl.value : 'medium';
+const initialMap = { easy: {clues:36, minPerBlock:4}, medium: {clues:30, minPerBlock:3}, hard: {clues:24, minPerBlock:2} };
+const initialOpts = initialMap[initialDiff] || initialMap.medium;
+generateNewPuzzle({clues:initialOpts.clues, minPerBlock:initialOpts.minPerBlock});
