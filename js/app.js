@@ -349,3 +349,26 @@ const initialDiff = initialDiffEl ? initialDiffEl.value : 'medium';
 const initialMap = { easy: {clues:36, minPerBlock:4}, medium: {clues:30, minPerBlock:3}, hard: {clues:24, minPerBlock:2} };
 const initialOpts = initialMap[initialDiff] || initialMap.medium;
 generateNewPuzzle({clues:initialOpts.clues, minPerBlock:initialOpts.minPerBlock});
+
+// Theme (dark mode) toggle
+const themeToggle = document.getElementById('themeToggle');
+function applyTheme(theme){
+  if(!theme) theme = 'light';
+  document.body.setAttribute('data-theme', theme === 'dark' ? 'dark' : 'light');
+  if(themeToggle) themeToggle.textContent = theme === 'dark' ? 'Light' : 'Dark';
+  try{ localStorage.setItem('sudoku-theme', theme); }catch(e){}
+}
+
+if(themeToggle){
+  themeToggle.addEventListener('click', ()=>{
+    const cur = document.body.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    const next = cur === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+  });
+}
+
+// apply saved theme ( defaults to light)
+try{
+  const saved = localStorage.getItem('sudoku-theme') || 'light';
+  applyTheme(saved);
+}catch(e){ applyTheme('light'); }

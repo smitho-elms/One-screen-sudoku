@@ -4,9 +4,11 @@
   --accent:#0b5cff;
   --muted:#666;
   --error:#ffdddd;
+  --text:#111;
 }
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;font-family:Segoe UI, Roboto, Arial, sans-serif;background:var(--bg);color:#111}
+html,body{height:100%;margin:0;font-family:Segoe UI, Roboto, Arial, sans-serif;background:var(--bg);color:var(--text)}
 header{padding:16px 20px}
 header h1{margin:0;font-weight:600}
 .subtitle{margin:6px 0 0;color:var(--muted)}
@@ -29,6 +31,23 @@ header h1{margin:0;font-weight:600}
 .difficulty-label{display:inline-block;margin-right:6px;font-size:14px;color:var(--muted);align-self:center}
 .actions{display:flex;gap:8px;margin-bottom:8px;align-items:center}
 .actions select{padding:6px;border-radius:6px;border:1px solid #cbd5e1;background:#fff}
+
+/* Theme toggle */
+.theme-toggle{margin-left:12px;padding:6px 10px;border-radius:6px;border:1px solid var(--muted);background:var(--panel);cursor:pointer;color:var(--text);font-weight:600}
+
+/* Dark theme variables applied to body attribute */
+body[data-theme="dark"]{
+  --bg:#0f1720;
+  --panel:#071025;
+  --accent:#4f8cff;
+  --muted:#98a6b3;
+  --error:#5b1b1b;
+  --text:#e6eef8;
+}
+
+body[data-theme="dark"] header h1{color:var(--text)}
+body[data-theme="dark"] .subtitle{color:var(--muted)}
+body[data-theme="dark"] .theme-toggle{color:var(--text);border-color:rgba(230,238,248,0.12);background:rgba(255,255,255,0.02)}
 .actions button{flex:1;padding:8px;border-radius:6px;border:0;background:var(--accent);color:#fff;cursor:pointer}
 .actions button#reset{background:#777}
 .status{min-height:36px;color:var(--muted);font-size:14px}
