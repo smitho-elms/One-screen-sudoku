@@ -59,6 +59,11 @@ function onCellInput(e){
   let v = input.value.replace(/[^1-9]/g,'');
   if(v.length>1) v = v.slice(-1);
   input.value = v;
+  const cell = input.closest('.cell');
+  if(cell){
+    if(input.value && input.value !== '') cell.classList.add('filled');
+    else cell.classList.remove('filled');
+  }
   validateAll();
 }
 
@@ -285,7 +290,10 @@ document.getElementById('hint').addEventListener('click', ()=>{
   if(empties.length===0){ statusEl.textContent = 'No empty cells to hint.'; return; }
   const [r,c] = empties[Math.floor(Math.random()*empties.length)];
   const inp = document.getElementById(`cell-${r}-${c}`);
-  if(inp){ inp.value = solution[r][c]; inp.focus(); selectCell(r,c); validateAll(); statusEl.textContent = `Hint: filled row ${r+1} col ${c+1}.`; }
+  if(inp){ inp.value = solution[r][c]; inp.focus(); selectCell(r,c); 
+    // mark filled state when programmatically setting a value
+    const parent = inp.closest('.cell'); if(parent) parent.classList.add('filled');
+    validateAll(); statusEl.textContent = `Hint: filled row ${r+1} col ${c+1}.`; }
 });
 
 document.getElementById('reset').addEventListener('click', ()=>{
@@ -297,6 +305,7 @@ document.getElementById('reset').addEventListener('click', ()=>{
     if(inp) inp.value = '';
   }
   statusEl.textContent = '';
+  sudokuEl.querySelectorAll('.cell.filled').forEach(el=>el.classList.remove('filled'));
   validateAll();
 });
 
@@ -320,11 +329,14 @@ document.addEventListener('keydown', (e)=>{
   if(!selectedCell) return;
   if(e.key >= '1' && e.key <= '9'){
     const inp = document.getElementById(`cell-${selectedCell.r}-${selectedCell.c}`);
-    if(inp){ inp.value = e.key; validateAll(); inp.focus(); }
+    if(inp){ inp.value = e.key; 
+      const parent = inp.closest('.cell'); if(parent) parent.classList.add('filled');
+      validateAll(); inp.focus(); }
   }
   if(e.key === 'Backspace' || e.key === 'Delete' || e.key==='0'){
     const inp = document.getElementById(`cell-${selectedCell.r}-${selectedCell.c}`);
-    if(inp){ inp.value = ''; validateAll(); inp.focus(); }
+    if(inp){ inp.value = ''; const parent = inp.closest('.cell'); if(parent) parent.classList.remove('filled');
+      validateAll(); inp.focus(); }
   }
 });
 
